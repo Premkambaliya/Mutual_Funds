@@ -945,7 +945,7 @@ const About = () => {
           </Box>
         </Container>
       </Box>
-      <Footer />
+
     </>
   );
 };

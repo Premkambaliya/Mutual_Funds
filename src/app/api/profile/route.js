@@ -1,5 +1,5 @@
 import { dbConnect } from "@/lib/dbConnect";
-import User from "../../../../models/user";
+import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
 export async function GET(req) {
