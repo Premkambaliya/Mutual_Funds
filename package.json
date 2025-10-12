@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "update:funds": "node src/scripts/updateFunds.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

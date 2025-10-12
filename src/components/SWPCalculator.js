@@ -34,11 +34,15 @@ export default function SWPCalculator({ navData }) {
   const [frequency, setFrequency] = useState("Monthly");
   const [startDate, setStartDate] = useState(() => {
     if (!navData || navData.length === 0) return "2020-01-01";
-    return navData[navData.length - 1].date; // earliest
+    const d = navData[navData.length - 1].date;
+    const parts = d.split('-');
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
   });
   const [endDate, setEndDate] = useState(() => {
     if (!navData || navData.length === 0) return new Date().toISOString().split("T")[0];
-    return navData[0].date;
+    const d = navData[0].date;
+    const parts = d.split('-');
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
   });
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
@@ -59,6 +63,24 @@ export default function SWPCalculator({ navData }) {
     }
     if (!navData || navData.length === 0) {
       setError("NAV data not available.");
+      return;
+    }
+
+    // Validate endDate against latest NAV
+    const latestNavRaw = navData[0].date; // dd-mm-yyyy
+    const lp = latestNavRaw.split('-');
+    const latestISO = `${lp[2]}-${lp[1]}-${lp[0]}`;
+    if (new Date(endDate) > new Date(latestISO)) {
+      setError(`No NAV data available for selected end date. Latest NAV available: ${latestISO}`);
+      return;
+    }
+
+    // Validate startDate against earliest NAV
+    const earliestNavRaw = navData[navData.length - 1].date;
+    const ep = earliestNavRaw.split('-');
+    const earliestISO = `${ep[2]}-${ep[1]}-${ep[0]}`;
+    if (new Date(startDate) < new Date(earliestISO)) {
+      setError(`Start date is before earliest available NAV (${earliestISO}). Please choose a later date.`);
       return;
     }
 

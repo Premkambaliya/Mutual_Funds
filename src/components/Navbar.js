@@ -409,6 +409,36 @@ export default function Navbar() {
               Funds
             </Link>
             <Link
+              href="/watchlist"
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                pathname === "/watchlist"
+                  ? "bg-white/20 text-white"
+                  : "text-white hover:bg-white/15 hover:-translate-y-0.5"
+              }`}
+            >
+              Watchlist
+            </Link>
+            <Link
+              href="/virtual-portfolio"
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                pathname === "/virtual-portfolio"
+                  ? "bg-white/20 text-white"
+                  : "text-white hover:bg-white/15 hover:-translate-y-0.5"
+              }`}
+            >
+              Virtual Portfolio
+            </Link>
+            <Link
+              href="/chat"
+              className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                pathname === "/chat"
+                  ? "bg-white/20 text-white"
+                  : "text-white hover:bg-white/15 hover:-translate-y-0.5"
+              }`}
+            >
+              Chat
+            </Link>
+            <Link
               href="/about"
               className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
                 pathname === "/about"
@@ -551,6 +581,17 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Funds
+              </Link>
+              <Link
+                href="/chat"
+                className={`block px-4 py-3 rounded-lg font-semibold transition-all duration-300 ${
+                  pathname === "/chat"
+                    ? "bg-white text-emerald-600"
+                    : "text-white hover:bg-white/15"
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Chat
               </Link>
               <Link
                 href="/about"
