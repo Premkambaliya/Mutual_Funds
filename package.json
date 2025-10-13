@@ -7,7 +7,8 @@
     "update:funds": "node src/scripts/updateFunds.js",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cron": "node scripts/cron.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -24,6 +25,7 @@
     "lucide-react": "^0.545.0",
     "mongoose": "^8.19.1",
     "next": "15.5.4",
+    "node-cron": "^4.2.1",
     "postcss": "^8.5.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",

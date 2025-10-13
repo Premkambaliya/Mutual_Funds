@@ -583,6 +583,28 @@ export default function Navbar() {
                 Funds
               </Link>
               <Link
+                href="/watchlist"
+                className={`block px-4 py-3 rounded-lg font-semibold transition-all duration-300 ${
+                  pathname === "/funds"
+                    ? "bg-white text-emerald-600"
+                    : "text-white hover:bg-white/15"
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Watchlist
+              </Link>
+              <Link
+                href="/virtual-portfolio"
+                className={`block px-4 py-3 rounded-lg font-semibold transition-all duration-300 ${
+                  pathname === "/funds"
+                    ? "bg-white text-emerald-600"
+                    : "text-white hover:bg-white/15"
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Virtual Portfolio
+              </Link>
+              <Link
                 href="/chat"
                 className={`block px-4 py-3 rounded-lg font-semibold transition-all duration-300 ${
                   pathname === "/chat"
