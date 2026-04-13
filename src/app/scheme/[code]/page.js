@@ -1209,7 +1209,7 @@ const SchemeDetailPage = () => {
     const fetchSchemeAndPortfolios = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`https://api.mfapi.in/mf/${code}`);
+        const res = await fetch(`/api/scheme/${code}`);
         if (!res.ok) {
           throw new Error(`Failed to fetch scheme: ${res.status}`);
         }

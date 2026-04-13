@@ -1198,13 +1198,13 @@ const Funds = () => {
   useEffect(() => {
     const fetchAllSchemes = async () => {
       try {
-        const res = await fetch("https://api.mfapi.in/mf");
+        const res = await fetch("/api/mf");
         const data = await res.json();
         setAllSchemes(data);
         setFilteredSchemes(data);
       } catch (err) {
         console.error(err);
-        setError("Failed to fetch schemes from MFAPI.");
+        setError("Failed to fetch schemes.");
       } finally {
         setLoading(false);
       }

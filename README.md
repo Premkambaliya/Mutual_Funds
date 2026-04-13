@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Mutual Funds App
 
-## Getting Started
+Ye project Next.js (App Router) me bana hai. Isme frontend aur backend dono ek hi server par run hote hain.
 
-First, run the development server:
+- Frontend pages: `src/app/...`
+- Backend APIs: `src/app/api/...`
+
+## 1. Setup
+
+```bash
+npm install
+```
+
+Environment variable set karein:
+
+1. `.env.local` file create karein (already added).
+2. Isme 2 alag DB config set karein:
+
+```env
+MONGODB_URI_USERS="mongodb+srv://<username>:<password>@<cluster-url>/?retryWrites=true&w=majority"
+MONGODB_USER_DB_NAME="mutualfunds"
+
+MONGODB_URI_COMPANY="mongodb+srv://<username>:<password>@<cluster-url>/?retryWrites=true&w=majority"
+MONGODB_COMPANY_DB_NAME="mutualfund"
+JWT_SECRET="your-jwt-secret"
+```
+
+Current behavior:
+
+- User auth/profile/watchlist/chat data -> `mutualfunds` DB
+- Mutual fund/company listing (`/api/mf`) -> `mutualfund` DB
+
+## 2. Frontend + Backend Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App open karein: `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Important: Next.js me alag se backend start karne ki zarurat nahi hoti. `npm run dev` se frontend + API routes dono run ho jate hain.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 3. API Test
 
-## Learn More
+Browser/Postman me check karein:
 
-To learn more about Next.js, take a look at the following resources:
+- `GET http://localhost:3000/api/mf`
+- `GET http://localhost:3000/api/scheme/119551` (example scheme code)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 4. MongoDB Me Funds Update Karna (Optional)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ye command MFAPI se data laake MongoDB me update karti hai:
 
-## Deploy on Vercel
+```bash
+npm run update:funds
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Notes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `MONGODB_URI_USERS` / `MONGODB_URI_COMPANY` missing hoga to app DB connect nahi karega.
+- `.env.local` git me commit mat karein.
+- Agar aapne plain credentials share kiye hain to Atlas password rotate karna recommended hai.

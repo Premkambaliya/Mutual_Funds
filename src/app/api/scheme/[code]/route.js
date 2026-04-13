@@ -16,24 +16,12 @@ export async function GET(request, { params }) {
       });
     }
 
-    // Fetch scheme NAV & metadata from MFAPI
+    // Fetch scheme NAV & metadata from upstream service
     const response = await axios.get(`https://api.mfapi.in/mf/${code}`);
     const schemeData = response.data;
 
-    // Extract metadata and NAV history
-    const result = {
-      meta: {
-        fundHouse: schemeData.meta.fund_house,
-        schemeName: schemeData.meta.scheme_name,
-        schemeType: schemeData.meta.scheme_type,
-        schemeCategory: schemeData.meta.scheme_category,
-        isin: schemeData.meta.isin,
-      },
-      navHistory: schemeData.data.map(item => ({
-        date: item.date,
-        nav: parseFloat(item.nav),
-      })),
-    };
+    // Keep response structure compatible with existing frontend pages
+    const result = schemeData;
 
     // Cache it
     cache[code] = { data: result, timestamp: Date.now() };

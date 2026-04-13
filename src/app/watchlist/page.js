@@ -569,7 +569,7 @@ export default function Watchlist() {
       // Fetch returns for each fund
       const returnsPromises = funds.map(async (fund) => {
         try {
-          const res = await fetch(`https://api.mfapi.in/mf/${fund.schemeCode}`);
+          const res = await fetch(`/api/scheme/${fund.schemeCode}`);
           if (!res.ok) return null;
           const fundData = await res.json();
           return { schemeCode: fund.schemeCode, returns: computeReturns(fundData.data) };

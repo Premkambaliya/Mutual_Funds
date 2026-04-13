@@ -521,36 +521,41 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SchemeCard from '../components/SchemeCard';
 
-const Home = ({ featuredSchemes = [], error: initialError }) => {
+const Home = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [schemes, setSchemes] = useState(featuredSchemes);
-  const [error, setError] = useState(initialError);
-  const [loading, setLoading] = useState(!featuredSchemes.length && !initialError);
+  const [schemes, setSchemes] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Example API fetch for featured schemes (if not passed as prop)
   useEffect(() => {
-    if (!featuredSchemes.length && !initialError) {
-      const fetchFeaturedSchemes = async () => {
-        try {
-          setLoading(true);
-          const response = await fetch('https://api.mfapi.in/mf');
-          const data = await response.json();
-          // Filter top 6 equity funds (example logic, adjust as needed)
-          const equityFunds = data
-            .filter(scheme => scheme.schemeName.toLowerCase().includes('equity'))
-            .slice(0, 6);
-          setSchemes(equityFunds);
-          setError(null);
-        } catch (err) {
-          setError('Failed to fetch featured schemes');
-        } finally {
-          setLoading(false);
+    const fetchFeaturedSchemes = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/mf');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch schemes: ${response.status}`);
         }
-      };
-      fetchFeaturedSchemes();
-    }
-  }, [featuredSchemes, initialError]);
+
+        const data = await response.json();
+        const schemesArray = Array.isArray(data) ? data : [];
+        const equityFunds = schemesArray.filter((scheme) => {
+          const schemeName = String(scheme.schemeName || scheme.scheme_name || '').toLowerCase();
+          const schemeCategory = String(scheme.schemeCategory || scheme.scheme_category || '').toLowerCase();
+          return schemeName.includes('equity') || schemeCategory.includes('equity');
+        });
+
+        setSchemes((equityFunds.length ? equityFunds : schemesArray).slice(0, 6));
+        setError(null);
+      } catch (err) {
+        setError('Failed to fetch featured schemes');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedSchemes();
+  }, []);
 
   if (error) {
     return (

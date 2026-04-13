@@ -1,11 +1,19 @@
 // app/api/mf/route.js
-import axios from 'axios';
-import { dbConnect } from '../../../lib/dbConnect';
-import Fund from '../../../../src/models/fund';
+import { dbConnectCompany, getCompanyFundModel } from '../../../lib/dbConnect';
 
 let cachedSchemes = null;
 let cacheTime = null;
 const CACHE_DURATION = 1000 * 60 * 10; // 10 minutes
+
+function normalizeFundDoc(doc) {
+  return {
+    ...doc,
+    scheme_code: doc.scheme_code ?? doc.schemeCode ?? doc.code ?? null,
+    scheme_name: doc.scheme_name ?? doc.schemeName ?? doc.name ?? '',
+    fund_house: doc.fund_house ?? doc.fundHouse ?? '',
+    scheme_category: doc.scheme_category ?? doc.schemeCategory ?? '',
+  };
+}
 
 function todayDateString() {
   const d = new Date();
@@ -25,36 +33,68 @@ export async function GET() {
       });
     }
 
-    // Try DB first
-    try {
-      await dbConnect();
-      const todayStr = todayDateString();
-      const funds = await Fund.find({ latest_nav_date: todayStr }).lean();
-      if (funds && funds.length) {
-        cachedSchemes = funds;
-        cacheTime = Date.now();
-        return new Response(JSON.stringify(funds), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
-    } catch (dbErr) {
-      // If DB fails, fall back to external API
-      console.warn('DB unavailable, falling back to mfapi:', dbErr.message || dbErr);
+    const Fund = await getCompanyFundModel();
+    const todayStr = todayDateString();
+    let funds = await Fund.find({ latest_nav_date: todayStr }).lean();
+
+    // If today's NAV isn't present yet, fall back to the latest available records.
+    if (!funds.length) {
+      funds = await Fund.find({}).sort({ last_updated: -1 }).lean();
     }
 
-    // Fetch from MFAPI as fallback
-    const response = await axios.get('https://api.mfapi.in/mf');
-    const schemes = response.data; // array of schemes
+    // Some datasets may live in a differently named collection.
+    if (!funds.length) {
+      const companyDb = await dbConnectCompany();
+      const collectionCandidates = [
+        'funds',
+        'fund',
+        'mutualfund',
+        'mutualfunds',
+        'companies',
+        'companydata',
+      ];
 
-    // Filter schemes to only those with today's NAV value if available (mfapi returns metadata only here)
-    // We'll return the list as-is since MFAPI /mf endpoint doesn't include NAV date per scheme. Client-side should fetch per-scheme NAV.
+      for (const collectionName of collectionCandidates) {
+        const docs = await companyDb.collection(collectionName).find({}).limit(5000).toArray();
+        if (!docs.length) continue;
 
-    // Cache the response
-    cachedSchemes = schemes;
+        funds = docs.map(normalizeFundDoc);
+        break;
+      }
+    }
+
+    // Final fallback: discover data in other databases from the same cluster.
+    if (!funds.length) {
+      const companyDb = await dbConnectCompany();
+      const dbList = await companyDb.client.db().admin().listDatabases();
+      const skipDbs = new Set(['admin', 'local', 'config']);
+
+      for (const dbInfo of dbList.databases || []) {
+        const dbName = dbInfo.name;
+        if (skipDbs.has(dbName)) continue;
+
+        const db = companyDb.client.db(dbName);
+        const collections = await db.listCollections().toArray();
+        const likelyCollections = collections
+          .map((c) => c.name)
+          .filter((name) => /fund|scheme|mf|company/i.test(name));
+
+        for (const collectionName of likelyCollections) {
+          const docs = await db.collection(collectionName).find({}).limit(5000).toArray();
+          if (!docs.length) continue;
+          funds = docs.map(normalizeFundDoc);
+          break;
+        }
+
+        if (funds.length) break;
+      }
+    }
+
+    // Return latest cached dataset for quick repeated calls
+    cachedSchemes = funds;
     cacheTime = Date.now();
 
-    return new Response(JSON.stringify(schemes), {
+    return new Response(JSON.stringify(funds), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

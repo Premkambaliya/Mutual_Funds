@@ -7,15 +7,17 @@ import axios from 'axios';
 import mongoose from 'mongoose';
 import Fund from '../../src/models/fund';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI_COMPANY || process.env.MONGODB_URI;
+const MONGODB_COMPANY_DB_NAME = process.env.MONGODB_COMPANY_DB_NAME || 'companydata';
+
 if (!MONGODB_URI) {
-  console.error('MONGODB_URI required');
+  console.error('MONGODB_URI_COMPANY (or MONGODB_URI) required');
   process.exit(1);
 }
 
 async function main() {
-  await mongoose.connect(MONGODB_URI);
-  console.log('Connected to MongoDB');
+  await mongoose.connect(MONGODB_URI, { dbName: MONGODB_COMPANY_DB_NAME });
+  console.log(`Connected to company DB: ${MONGODB_COMPANY_DB_NAME}`);
 
   const listResp = await axios.get('https://api.mfapi.in/mf');
   const schemes = listResp.data;
